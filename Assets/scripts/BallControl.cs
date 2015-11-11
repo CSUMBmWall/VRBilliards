@@ -4,11 +4,12 @@ using System.Collections;
 public class BallControl : MonoBehaviour
 {
     GameObject cueBall;
-    Vector3 cueBallPos;
+    Vector3 origCueBallPos;
     Rigidbody cueRB;
-    Rigidbody playerRigidbody;
+	Collider cueCollider;
     Vector3 currentDirection;
-    bool posCue = true;
+    bool scratch = false;
+	bool posCue = false;
     bool selectBall = false;
     Vector3 selectedBall;
     GameControl gs;
@@ -20,8 +21,9 @@ public class BallControl : MonoBehaviour
     {
 
         cueBall = GameObject.Find("cue");
-        cueBallPos = cueBall.transform.position;
+        origCueBallPos = cueBall.transform.position;
         cueRB = cueBall.GetComponent<Rigidbody>();
+		cueCollider = cueBall.GetComponent<Collider>();
     }
 
     void OnTriggerEnter(Collider col)
@@ -30,10 +32,11 @@ public class BallControl : MonoBehaviour
         //col.gameObject.transform.position = Vector3.Lerp(trans.position, new Vector3(trans.position.x, trans.position.y - 1, trans.position.z), 1f);
         if (col.gameObject.transform.name == "cue")
         {
-            col.gameObject.transform.position = cueBallPos + new Vector3(0f,.1f,0f);
-            cueRB.velocity = Vector3.zero;
-            cueRB.angularVelocity = Vector3.zero;
-            posCue = true;
+            //col.gameObject.transform.position = origCueBallPos + new Vector3(0f,.15f,0f);
+			cueRB.velocity = Vector3.zero;
+			cueRB.angularVelocity = Vector3.zero;
+			col.gameObject.transform.position = origCueBallPos;            
+            scratch = true;
         }
         else
         {
@@ -63,20 +66,30 @@ public class BallControl : MonoBehaviour
 
     void Update()
     {
-        if (posCue)
-        {
-            newDirection();
-            Vector3 temp = cueRB.transform.position + currentDirection;
-
-            //Vector3 newCueBallPos = new Vector3(Mathf.Clamp(temp.x, 1.17f, 1.57f), 0f, Mathf.Clamp(temp.z, 0.49f, -.48f));
-            //Debug.Log("newCueBallPos " + newCueBallPos);
-            cueRB.transform.position = Vector3.Lerp(cueRB.transform.position, cueRB.transform.position + currentDirection, Time.deltaTime * 2);
-            //cueRB.transform.position = Vector3.Lerp(cueRB.transform.position, newCueBallPos, Time.deltaTime * 2);
-        }
-		if (Input.GetKeyDown("space"))
+        if (scratch && posCue)
+        {          
+			
+			cueCollider.enabled = false;
+			newDirection ();
+			Vector3 temp = cueRB.transform.position + currentDirection;
+        	
+			//Vector3 newCueBallPos = new Vector3(Mathf.Clamp(temp.x, 1.17f, 1.57f), 0f, Mathf.Clamp(temp.z, 0.49f, -.48f));
+			//Debug.Log("newCueBallPos " + newCueBallPos);
+			cueRB.transform.position = Vector3.Lerp (cueRB.transform.position, cueRB.transform.position + currentDirection, Time.deltaTime * 2);
+			//cueRB.transform.position = Vector3.Lerp(cueRB.transform.position, newCueBallPos, Time.deltaTime * 2);
+			if (Input.GetKeyDown(KeyCode.C)) {
+				scratch = posCue = false;
+				cueCollider.enabled = true;
+				/*
+				float ocby = origCueBallPos.y;
+				Vector3 tempPos = new Vector3(cueRB.transform.position.x, origCueBallPos.y, cueRB.transform.position.z);
+				cueRB.transform.position = tempPos;
+				*/
+			}
+		}
+		if (scratch == true && Input.GetKeyDown("space"))
 		{
-			posCue = false;
-            selectBall = true;
+			posCue = true;
 		}
         if (selectBall)
         {
