@@ -3,27 +3,31 @@ using System.Collections;
 
 public class BallControl : MonoBehaviour
 {
-    GameObject cueBall;
-    Vector3 origCueBallPos;
-    Rigidbody cueRB;
-	Collider cueCollider;
-    Vector3 currentDirection;
-    bool scratch = false;
+	bool scratch = false;
 	bool posCue = false;
-    bool selectBall = false;
+	bool selectBall = true;
+
+	Collider cueCollider;
+
+    GameObject cueBall;
+
+	Rigidbody cueRB;
+
+	string setCue = "KeyCode.C"; //condition that places cueball after scratch
+
+	Vector3 origCueBallPos;
+    Vector3 currentDirection;    
     Vector3 selectedBall;
-    GameControl gs;
 
-
+    GameControl gc;
 
     // Use this for initialization
     void Start()
     {
-
-        cueBall = GameObject.Find("cue");
-        origCueBallPos = cueBall.transform.position;
-        cueRB = cueBall.GetComponent<Rigidbody>();
+        cueBall = GameObject.Find("cue"); cueRB = cueBall.GetComponent<Rigidbody>();
+		origCueBallPos = cueBall.transform.position;
 		cueCollider = cueBall.GetComponent<Collider>();
+		gc = GameControl.getInstance();
     }
 
     void OnTriggerEnter(Collider col)
@@ -35,7 +39,8 @@ public class BallControl : MonoBehaviour
             //col.gameObject.transform.position = origCueBallPos + new Vector3(0f,.15f,0f);
 			cueRB.velocity = Vector3.zero;
 			cueRB.angularVelocity = Vector3.zero;
-			col.gameObject.transform.position = origCueBallPos;            
+			col.gameObject.transform.position = origCueBallPos;    
+			Debug.Log("col.gameObject.transform.position " + col.gameObject.transform.position);
             scratch = true;
         }
         else
@@ -97,13 +102,16 @@ public class BallControl : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ballRay, out hit))
             {
-                if (hit.collider.tag == "ball" && Input.GetMouseButton(1))
+				//Debug.Log ("ballRay hit" + hit);
+                if (hit.collider.tag == "ball" && Input.GetMouseButton(0))
                 {
+					Debug.Log ("hit.collider.tag " + hit.collider.tag);
                     selectedBall = hit.collider.transform.position;
+					//Debug.Log ("selectedBall" + selectedBall);
                     Vector3 dist = cueRB.transform.position - selectedBall;
                     Ray cueStickRay = new Ray (selectedBall, selectedBall - cueRB.transform.position);
 
-                    //CueStickControl.getInstance().lineUpShot(cueStickRay.GetPoint();
+                    gc.setCueStickPos(cueStickRay);
 
                 }
             }

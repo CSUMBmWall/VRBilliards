@@ -26,8 +26,8 @@ public class CueStickControl : MonoBehaviour {
 	
 	}
 
-    public void lineUpShot(Vector3 v3)
+    public void lineUpShot(Ray cueStickRay)
     {
-        transform.position = v3;
+        transform.position = cueStickRay.GetPoint (.5f);
     }
 }

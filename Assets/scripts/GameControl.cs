@@ -2,7 +2,8 @@
 
 public class GameControl : MonoBehaviour {
 
-    private static GameControl instance;
+    
+	private static GameControl instance;
 
     private GameControl() { }
 
@@ -14,10 +15,18 @@ public class GameControl : MonoBehaviour {
         }
         return instance;
     }
+    
+
+	private CueStickControl csc;
+
+	public void setCueStickPos(Ray CueStickRay) {
+		csc.lineUpShot(CueStickRay);
+	}
 
     void Start () {
 
-		SoundManager.getInstance ().initializeSoundManager ();		
+		SoundManager.getInstance ().initializeSoundManager ();	
+		csc = CueStickControl.getInstance();
 
 	}	
 	

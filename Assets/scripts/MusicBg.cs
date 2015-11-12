@@ -27,7 +27,7 @@ public class MusicBg : MonoBehaviour {
 	
 	void Start()
 	{
-		//musicbg = musicbgParents.GetComponentsInChildren<AudioClip>();
+		//musicbg = Resources.Load ("Jukebox").GetComponentsInChildren<AudioClip>();
 		//i= Random.Range(0,musicbg.Length);
 		//StartCoroutine("Playlist");
 	}
