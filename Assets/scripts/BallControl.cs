@@ -11,6 +11,7 @@ public class BallControl : MonoBehaviour
 	GameObject cueStick;
 
 	Rigidbody cueBallRB;
+	Rigidbody cueStickRB;
 	Collider cueCollider;
 	Vector3 origCueBallPos;
 
@@ -49,7 +50,9 @@ public class BallControl : MonoBehaviour
 		if (selectBallTrue) {
 			selectBall();
 			setCueStick();
+
 		}
+
 	}
 
 	void OnTriggerEnter (Collider col)
@@ -82,8 +85,6 @@ public class BallControl : MonoBehaviour
 
 	void setCueStick() {
 		Rigidbody cueStickRB = cueStick.GetComponent<Rigidbody>();
-		cueStickRB.constraints = RigidbodyConstraints.FreezePositionY;
-		cueStickRB.constraints = RigidbodyConstraints.FreezeRotationX;
 
 		Vector3 direction = cueBallRB.transform.position - selectedBall;
 		direction.y += .2f;
@@ -93,6 +94,14 @@ public class BallControl : MonoBehaviour
 
 		// Moves stick to the cueball and then to the edge + 20% further so they're not touching
 		cueStick.transform.position = cueBall.transform.position + direction.normalized * (cueStick.transform.localScale.z / cueBall.transform.localScale.z / 4 * 1.2f);
+
+		//cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
+
+
+
+		//cueStickRB.velocity = Vector3.zero;
+		//cueStickRB.angularVelocity = Vector3.zero;
+
 	}
 
 	void moveCueBallAfterScratch() {
@@ -139,7 +148,6 @@ public class BallControl : MonoBehaviour
 
 	Vector3 keepInKitchen (Vector3 position)
 	{
-		Debug.Log ("Before keepInKitchen" + position);
 		position.y = .8f;
 		if (position.x > 2.25f)
 			position.x = 2.25f;
@@ -161,5 +169,8 @@ public class BallControl : MonoBehaviour
 		cueCollider = cueBall.GetComponent<Collider> ();
 	}
 
+	void moveCueWithMyo() {
+		cueStick.transform.RotateAround (cueStick.transform.position, Vector3.up, 0.3f); 
+	}
 
 }
