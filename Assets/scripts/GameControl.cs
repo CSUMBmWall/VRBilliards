@@ -20,20 +20,20 @@ public class GameControl : MonoBehaviour {
 	private CueStickControl csc;
 
 	public void setCueStickPos(Ray CueStickRay) {
-		csc.lineUpShot(CueStickRay);
+		//csc.lineUpShot(CueStickRay);
 	}
 
     void Start () {
 
 		SoundManager.getInstance ().initializeSoundManager ();	
-		csc = CueStickControl.getInstance();
+		//csc = CueStickControl.getInstance();
 
 	}	
 	
     bool bposCueStick = false;
     public void setbposCueStick(bool setCue)
     {
-        bposCueStick = setCue;
+        //bposCueStick = setCue;
     }
     // Myo game object to connect with.
     // This object must have a ThalmicMyo script attached.

@@ -28,6 +28,6 @@ public class CueStickControl : MonoBehaviour {
 
     public void lineUpShot(Ray cueStickRay)
     {
-        transform.position = cueStickRay.GetPoint (.5f);
+        //transform.position = cueStickRay.GetPoint (.5f);
     }
 }

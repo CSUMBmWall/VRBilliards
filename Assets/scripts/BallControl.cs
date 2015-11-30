@@ -3,120 +3,163 @@ using System.Collections;
 
 public class BallControl : MonoBehaviour
 {
-	bool scratch = false;
-	bool posCue = false;
-	bool selectBall = true;
+	bool scratchTrue = false;
+	bool positionCueTrue = false;
+	bool selectBallTrue = false;
 
+	GameObject cueBall;
+	GameObject cueStick;
+
+	Rigidbody cueBallRB;
 	Collider cueCollider;
-
-    GameObject cueBall;
-
-	Rigidbody cueRB;
-
-	string setCue = "KeyCode.C"; //condition that places cueball after scratch
-
 	Vector3 origCueBallPos;
-    Vector3 currentDirection;    
-    Vector3 selectedBall;
 
-    GameControl gc;
+	Vector3 currentDirection;
+	Vector3 selectedBall;
 
-    // Use this for initialization
-    void Start()
-    {
-        cueBall = GameObject.Find("cue"); cueRB = cueBall.GetComponent<Rigidbody>();
-		origCueBallPos = cueBall.transform.position;
-		cueCollider = cueBall.GetComponent<Collider>();
-		gc = GameControl.getInstance();
-    }
+	GameControl gc;
 
-    void OnTriggerEnter(Collider col)
-    {
-        //Transform trans = col.gameObject.transform;   
-        //col.gameObject.transform.position = Vector3.Lerp(trans.position, new Vector3(trans.position.x, trans.position.y - 1, trans.position.z), 1f);
-        if (col.gameObject.transform.name == "cue")
-        {
-            //col.gameObject.transform.position = origCueBallPos + new Vector3(0f,.15f,0f);
-			cueRB.velocity = Vector3.zero;
-			cueRB.angularVelocity = Vector3.zero;
-			col.gameObject.transform.position = origCueBallPos;    
-			Debug.Log("col.gameObject.transform.position " + col.gameObject.transform.position);
-            scratch = true;
-        }
-        else
-        {
-            Destroy(col.gameObject);
-        }
-    }      
+	int stripeCount;
+	int solidCount;
 
-	void shotPosition(Transform t) {
-		Ray shotRay = new Ray (t.position, t.position - cueRB.transform.position);
-	}
-    
-	
-	bool newDirection()
+	// Use this for initialization
+	void Start ()
 	{
-		Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		solidCount = stripeCount = 7;        
+		gc = GameControl.getInstance ();
+		getCueInfo ();
+		cueStick = GameObject.Find("cueStick");
+		selectedBall = GameObject.Find("1").GetComponent<Transform>().position;
+		setCueStick();
+	}
+
+	void Update ()
+	{
+		if (scratchTrue == true && Input.GetKeyDown ("space")) {
+			positionCueTrue = true;
+		}
+		if (scratchTrue && positionCueTrue) {          			
+			moveCueBallAfterScratch();			
+
+			if (Input.GetKeyDown (KeyCode.C)) {
+				stopMovingCueBallAfterScratch();
+				selectBallTrue = true;
+			}
+		}
+		if (selectBallTrue) {
+			selectBall();
+			setCueStick();
+		}
+	}
+
+	void OnTriggerEnter (Collider col)
+	{    
+		if (col.gameObject.transform.name == "cueBall") {
+			resetCueBall (col);            
+		} else {
+			if (col.gameObject.transform.tag == "solid") {
+				solidCount--;
+			}
+			if (col.gameObject.transform.tag == "stripe") {
+				stripeCount--;
+			}
+			Destroy (col.gameObject);
+		}
+	}
+	
+	void selectBall() {
+		Ray ballRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+		RaycastHit hit;
+		if (Physics.Raycast (ballRay, out hit)) {
+			//Debug.Log ("ballRay hit" + hit);
+			if ((hit.collider.tag == "solid" || hit.collider.tag == "stripe") && Input.GetMouseButton (0)) {
+				Debug.Log ("hit.collider.tag " + hit.collider.name);
+				selectedBall = hit.collider.transform.position;
+				Vector3 direction = cueBallRB.transform.position - selectedBall;
+			}
+		}			
+	}
+
+	void setCueStick() {
+		Rigidbody cueStickRB = cueStick.GetComponent<Rigidbody>();
+		cueStickRB.constraints = RigidbodyConstraints.FreezePositionY;
+		cueStickRB.constraints = RigidbodyConstraints.FreezeRotationX;
+
+		Vector3 direction = cueBallRB.transform.position - selectedBall;
+		direction.y += .2f;
+
+		// Changes stick rotation to be pointing at the target ball (red)
+		cueStick.transform.rotation = Quaternion.LookRotation (direction); 
+
+		// Moves stick to the cueball and then to the edge + 20% further so they're not touching
+		cueStick.transform.position = cueBall.transform.position + direction.normalized * (cueStick.transform.localScale.z / cueBall.transform.localScale.z / 4 * 1.2f);
+	}
+
+	void moveCueBallAfterScratch() {
+		cueCollider.enabled = false;
+		findMouseHitPoint ();
+
+		Vector3 currentCueBallPos = cueBallRB.transform.position;		
+		Vector3 newCueBallPos = cueBallRB.transform.position + currentDirection;
+		
+		currentCueBallPos = keepInKitchen(currentCueBallPos);
+		newCueBallPos = keepInKitchen(newCueBallPos);
+		
+		cueBallRB.transform.position = Vector3.Lerp (currentCueBallPos, newCueBallPos, Time.deltaTime * 2);
+
+	}
+
+	void stopMovingCueBallAfterScratch() {
+		scratchTrue = positionCueTrue = false;
+		cueCollider.enabled = true;
+	}
+
+	void resetCueBall (Collider col)
+	{
+		cueBallRB.velocity = Vector3.zero;
+		cueBallRB.angularVelocity = Vector3.zero;
+		col.gameObject.transform.position = origCueBallPos;  
+		scratchTrue = true;
+	}
+
+	bool findMouseHitPoint ()
+	{
+		Ray camRay = Camera.main.ScreenPointToRay (Input.mousePosition);
 		RaycastHit floorHit;
-		int floorMask = LayerMask.GetMask("TableFloor");
-		if (Physics.Raycast(camRay, out floorHit))
-		{
-			Vector3 playerToMouse = floorHit.point - cueRB.transform.position;
-			playerToMouse.y = 0f;
-			currentDirection = playerToMouse;
+		int floorMask = LayerMask.GetMask ("TableFloor");
+		if (Physics.Raycast (camRay, out floorHit)) {
+			Vector3 mouseHit = floorHit.point - cueBallRB.transform.position;
+
+			//keepInKitchen(mouseHit);
+			currentDirection = mouseHit;
 			return true;
 		}
 		return false;
 	}
 
-    void Update()
-    {
-        if (scratch && posCue)
-        {          
-			
-			cueCollider.enabled = false;
-			newDirection ();
-			Vector3 temp = cueRB.transform.position + currentDirection;
-        	
-			//Vector3 newCueBallPos = new Vector3(Mathf.Clamp(temp.x, 1.17f, 1.57f), 0f, Mathf.Clamp(temp.z, 0.49f, -.48f));
-			//Debug.Log("newCueBallPos " + newCueBallPos);
-			cueRB.transform.position = Vector3.Lerp (cueRB.transform.position, cueRB.transform.position + currentDirection, Time.deltaTime * 2);
-			//cueRB.transform.position = Vector3.Lerp(cueRB.transform.position, newCueBallPos, Time.deltaTime * 2);
-			if (Input.GetKeyDown(KeyCode.C)) {
-				scratch = posCue = false;
-				cueCollider.enabled = true;
-				/*
-				float ocby = origCueBallPos.y;
-				Vector3 tempPos = new Vector3(cueRB.transform.position.x, origCueBallPos.y, cueRB.transform.position.z);
-				cueRB.transform.position = tempPos;
-				*/
-			}
-		}
-		if (scratch == true && Input.GetKeyDown("space"))
-		{
-			posCue = true;
-		}
-        if (selectBall)
-        {
-            Ray ballRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ballRay, out hit))
-            {
-				//Debug.Log ("ballRay hit" + hit);
-                if (hit.collider.tag == "ball" && Input.GetMouseButton(0))
-                {
-					Debug.Log ("hit.collider.tag " + hit.collider.tag);
-                    selectedBall = hit.collider.transform.position;
-					//Debug.Log ("selectedBall" + selectedBall);
-                    Vector3 dist = cueRB.transform.position - selectedBall;
-                    Ray cueStickRay = new Ray (selectedBall, selectedBall - cueRB.transform.position);
+	Vector3 keepInKitchen (Vector3 position)
+	{
+		Debug.Log ("Before keepInKitchen" + position);
+		position.y = .8f;
+		if (position.x > 2.25f)
+			position.x = 2.25f;
+		else if (position.x < 1.8f)
+			position.x = 1.8f;
+		if (position.z > 3.66f)
+			position.z = 3.66f;
+		else if (position.z < 2.6f)
+			position.z = 2.6f;
+		Debug.Log ("After keepInKitchen" + position);
+		return position;
+	}
+    
+	void getCueInfo ()
+	{
+		cueBall = GameObject.Find ("cueBall"); 
+		cueBallRB = cueBall.GetComponent<Rigidbody> ();
+		origCueBallPos = cueBall.transform.position;
+		cueCollider = cueBall.GetComponent<Collider> ();
+	}
 
-                    gc.setCueStickPos(cueStickRay);
-
-                }
-            }
-
-        }
-    }
 
 }
