@@ -52,6 +52,13 @@ public class BallControl : MonoBehaviour
 			setCueStick();
 
 		}
+		if (Input.GetKeyDown(KeyCode.S)) {
+			positionCueTrue = true;
+		}
+		if (positionCueTrue) {
+			selectBall();
+			setCueStick();
+		}
 
 	}
 
@@ -95,7 +102,7 @@ public class BallControl : MonoBehaviour
 		// Moves stick to the cueball and then to the edge + 20% further so they're not touching
 		cueStick.transform.position = cueBall.transform.position + direction.normalized * (cueStick.transform.localScale.z / cueBall.transform.localScale.z / 4 * 1.2f);
 
-		//cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
+		cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
 
 
 
