@@ -3,6 +3,7 @@ using System.Collections;
 
 public class BallControl : MonoBehaviour
 {
+	public GameObject pointer;
 	bool scratchTrue = false;
 	bool positionCueTrue = false;
 	bool selectBallTrue = false;
@@ -25,10 +26,13 @@ public class BallControl : MonoBehaviour
 
 	int stripeCount;
 	int solidCount;
+	GameObject myo = null;
 
+	
 	// Use this for initialization
 	void Start ()
 	{
+		//pointer.SetActive (false);
 		selectedBall = GameObject.Find("1").GetComponent<Transform>().position;
 		solidCount = stripeCount = 7;        
 		gc = GameControl.getInstance ();
@@ -36,14 +40,16 @@ public class BallControl : MonoBehaviour
 		getCueStickInfo();
 		setCueStick();
 
-		//MYO TESTS
-		//cueStickRB.constraints = RigidbodyConstraints.FreezePositionY;
-		//cueStickCollider.enabled = false;
+
 
 	}
 
 	void Update ()
 	{
+		//MYO TESTS
+
+
+
 		if (scratchTrue == true && Input.GetKeyDown ("space")) {
 			positionCueTrue = true;
 		}
@@ -95,6 +101,10 @@ public class BallControl : MonoBehaviour
 				setCueStick();
 			}
 		}			
+	}
+
+	void myoSelectBall() {
+
 	}
 
 	void setCueStick() {

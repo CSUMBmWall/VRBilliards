@@ -8,6 +8,10 @@ public class SampleSceneGUI : MonoBehaviour
 	// Myo game object to connect with.
 	// This object must have a ThalmicMyo script attached.
 	public GameObject myo = null;
+	bool myoIsPaired = false;
+	Quaternion myoRotationVal;
+	ThalmicMyo thalmicMyo;
+
 	
 	// Draw some basic instructions.
 	void OnGUI ()
@@ -17,7 +21,7 @@ public class SampleSceneGUI : MonoBehaviour
 		ThalmicHub hub = ThalmicHub.instance;
 		
 		// Access the ThalmicMyo script attached to the Myo object.
-		ThalmicMyo thalmicMyo = myo.GetComponent<ThalmicMyo> ();
+		thalmicMyo = myo.GetComponent<ThalmicMyo> ();
 		
 		if (!hub.hubInitialized) {
 			GUI.Label(new Rect (12, 8, Screen.width, Screen.height),
@@ -33,6 +37,10 @@ public class SampleSceneGUI : MonoBehaviour
 			          "Perform the Sync Gesture."
 			          );
 		} else {
+			myoIsPaired = true;
+
+			/*
+
 			GUI.Label (new Rect (12, 8, Screen.width, Screen.height),
 			           "Fist: Vibrate Myo armband\n" +
 			           "Wave in: Set box material to blue\n" +
@@ -40,7 +48,16 @@ public class SampleSceneGUI : MonoBehaviour
 			           "Double tap: Reset box material\n" +
 			           "Fingers spread: Set forward direction"
 			           );
+			         */
 		}
+	}
+
+	public bool isPaired() {
+		return myoIsPaired;
+	}
+
+	public Quaternion myoRotation() {
+		return myoRotationVal;
 	}
 	
 	void Update ()
@@ -49,6 +66,9 @@ public class SampleSceneGUI : MonoBehaviour
 		
 		if (Input.GetKeyDown ("q")) {
 			hub.ResetHub();
+		}
+		if (myoIsPaired) {
+			myoRotationVal = myo.GetComponent<Quaternion>();
 		}
 	}
 }

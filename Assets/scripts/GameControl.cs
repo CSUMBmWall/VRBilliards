@@ -66,6 +66,7 @@ public class GameControl : MonoBehaviour {
 		//if (
     }
 
+	/*
     // Draw some basic instructions.
     void OnGUI()
     {
@@ -99,9 +100,8 @@ public class GameControl : MonoBehaviour {
                 "Fingers spread: Set forward direction"
             );
         }
-        
-        
     }
+    */
 }
 
 
