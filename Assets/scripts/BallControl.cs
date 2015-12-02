@@ -12,7 +12,10 @@ public class BallControl : MonoBehaviour
 
 	Rigidbody cueBallRB;
 	Rigidbody cueStickRB;
+
 	Collider cueCollider;
+	Collider cueStickCollider;
+
 	Vector3 origCueBallPos;
 
 	Vector3 currentDirection;
@@ -26,11 +29,11 @@ public class BallControl : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		selectedBall = GameObject.Find("1").GetComponent<Transform>().position;
 		solidCount = stripeCount = 7;        
 		gc = GameControl.getInstance ();
 		getCueInfo ();
-		cueStick = GameObject.Find("cueStick");
-		selectedBall = GameObject.Find("1").GetComponent<Transform>().position;
+		getCueStickInfo();
 		setCueStick();
 	}
 
@@ -53,7 +56,7 @@ public class BallControl : MonoBehaviour
 
 		}
 		if (Input.GetKeyDown(KeyCode.S)) {
-			positionCueTrue = true;
+			selectBallTrue = true;
 		}
 		if (positionCueTrue) {
 			selectBall();
@@ -91,10 +94,9 @@ public class BallControl : MonoBehaviour
 	}
 
 	void setCueStick() {
-		Rigidbody cueStickRB = cueStick.GetComponent<Rigidbody>();
 
 		Vector3 direction = cueBallRB.transform.position - selectedBall;
-		direction.y += .2f;
+		direction.y += .2f; //offset to keep from hitting table
 
 		// Changes stick rotation to be pointing at the target ball (red)
 		cueStick.transform.rotation = Quaternion.LookRotation (direction); 
@@ -104,14 +106,14 @@ public class BallControl : MonoBehaviour
 
 		cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
 
-
-
 		//cueStickRB.velocity = Vector3.zero;
 		//cueStickRB.angularVelocity = Vector3.zero;
 
 	}
 
 	void moveCueBallAfterScratch() {
+		cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
+
 		cueCollider.enabled = false;
 		findMouseHitPoint ();
 
@@ -174,6 +176,12 @@ public class BallControl : MonoBehaviour
 		cueBallRB = cueBall.GetComponent<Rigidbody> ();
 		origCueBallPos = cueBall.transform.position;
 		cueCollider = cueBall.GetComponent<Collider> ();
+	}
+
+	void getCueStickInfo () {		
+		cueStick = GameObject.Find("cueStick");
+		cueStickRB = cueStick.GetComponent<Rigidbody>();
+		cueStickCollider = cueStick.GetComponent<Collider>();
 	}
 
 	void moveCueWithMyo() {
