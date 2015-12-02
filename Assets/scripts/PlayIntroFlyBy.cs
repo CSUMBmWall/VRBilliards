@@ -6,7 +6,7 @@ public class PlayIntroFlyBy : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		animation = Resources.Load("introFlyBy");
+		animation = (Animation) Resources.Load("introFlyBy");
 		animation.Play();
 	}
 	
