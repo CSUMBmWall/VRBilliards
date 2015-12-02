@@ -35,6 +35,11 @@ public class BallControl : MonoBehaviour
 		getCueInfo ();
 		getCueStickInfo();
 		setCueStick();
+
+		//MYO TESTS
+		//cueStickRB.constraints = RigidbodyConstraints.FreezePositionY;
+		//cueStickCollider.enabled = false;
+
 	}
 
 	void Update ()
@@ -52,7 +57,7 @@ public class BallControl : MonoBehaviour
 		}
 		if (selectBallTrue) {
 			selectBall();
-			setCueStick();
+
 
 		}
 		if (Input.GetKeyDown(KeyCode.S)) {
@@ -86,9 +91,8 @@ public class BallControl : MonoBehaviour
 		if (Physics.Raycast (ballRay, out hit)) {
 			//Debug.Log ("ballRay hit" + hit);
 			if ((hit.collider.tag == "solid" || hit.collider.tag == "stripe") && Input.GetMouseButton (0)) {
-				Debug.Log ("hit.collider.tag " + hit.collider.name);
 				selectedBall = hit.collider.transform.position;
-				Vector3 direction = cueBallRB.transform.position - selectedBall;
+				setCueStick();
 			}
 		}			
 	}
@@ -102,12 +106,9 @@ public class BallControl : MonoBehaviour
 		cueStick.transform.rotation = Quaternion.LookRotation (direction); 
 
 		// Moves stick to the cueball and then to the edge + 20% further so they're not touching
-		cueStick.transform.position = cueBall.transform.position + direction.normalized * (cueStick.transform.localScale.z / cueBall.transform.localScale.z / 4 * 1.2f);
+		cueStick.transform.position = cueBall.transform.position + direction.normalized * (cueStick.transform.localScale.z / cueBall.transform.localScale.z / 6 * 1.2f);
 
 		cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
-
-		//cueStickRB.velocity = Vector3.zero;
-		//cueStickRB.angularVelocity = Vector3.zero;
 
 	}
 
@@ -166,7 +167,6 @@ public class BallControl : MonoBehaviour
 			position.z = 3.66f;
 		else if (position.z < 2.6f)
 			position.z = 2.6f;
-		Debug.Log ("After keepInKitchen" + position);
 		return position;
 	}
     

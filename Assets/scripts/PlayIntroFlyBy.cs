@@ -6,12 +6,8 @@ public class PlayIntroFlyBy : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-Assets/scripts/PlayIntroFlyBy.cs
-		animation = (Animation) Resources.Load("introFlyBy");
-		animation.Play();
-
-
-
+		//animation = (Animation) Resources.Load("introFlyBy");
+		//animation.Play();
 	}
 	
 	// Update is called once per frame

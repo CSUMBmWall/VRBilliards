@@ -1,20 +1,34 @@
 ﻿using UnityEngine;
 
+using System.Collections;
+
+using LockingPolicy = Thalmic.Myo.LockingPolicy;
+using Pose = Thalmic.Myo.Pose;
+using UnlockType = Thalmic.Myo.UnlockType;
+using VibrationType = Thalmic.Myo.VibrationType;
+
+
 public class GameControl : MonoBehaviour {
 
+	public GameObject myo = null;
+	private Pose _lastPose = Pose.Unknown;
+	ThalmicMyo thalmicMyo = null;
+	ThalmicHub hub;
     
 	private static GameControl instance;
 
     private GameControl() { }
 
+
     public static GameControl getInstance()
     {
         if (instance == null)
         {
-            instance = new GameControl();
+			instance = new GameControl();
         }
         return instance;
     }
+    
     
 
 	private CueStickControl csc;
@@ -37,18 +51,19 @@ public class GameControl : MonoBehaviour {
     }
     // Myo game object to connect with.
     // This object must have a ThalmicMyo script attached.
-    public GameObject myo = null;  
 
     void Update()
     {
         SoundManager.getInstance().updateSoundManager();
         if (Input.GetKey("escape"))
             Application.Quit();
-        ThalmicHub hub = ThalmicHub.instance;
+		thalmicMyo = myo.GetComponent<ThalmicMyo> ();
+        hub = ThalmicHub.instance;
         if (Input.GetKeyDown("q"))
         {
             hub.ResetHub();
         }
+		//if (
     }
 
     // Draw some basic instructions.
@@ -56,12 +71,11 @@ public class GameControl : MonoBehaviour {
     {
         GUI.skin.label.fontSize = 20;
 
-        ThalmicHub hub = ThalmicHub.instance;
+		hub = ThalmicHub.instance;
+		
+		// Access the ThalmicMyo script attached to the Myo object.
+		thalmicMyo = myo.GetComponent<ThalmicMyo> ();
 
-        // Access the ThalmicMyo script attached to the Myo object.
-        ThalmicMyo thalmicMyo = myo.GetComponent<ThalmicMyo>();
-
-        /*
 
         if (!hub.hubInitialized) {
             GUI.Label(new Rect (12, 8, Screen.width, Screen.height),
@@ -85,7 +99,8 @@ public class GameControl : MonoBehaviour {
                 "Fingers spread: Set forward direction"
             );
         }
-        */
+        
+        
     }
 }
 
