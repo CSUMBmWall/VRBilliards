@@ -18,7 +18,7 @@ public class CueStickControl : MonoBehaviour {
 	void OnCollisionEnter(Collision collision) {
 		if (collision.gameObject.transform.name == "cueBall") {
 			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-			Debug.Log ("CueSTick on collision enter: transform.position " + transform.position + " ballcontrol " + generalInfo.getCueStickPosition());
+			//Debug.Log ("CueSTick on collision enter: transform.position " + transform.position + " ballcontrol " + generalInfo.getCueStickPosition());
 			transform.position = Vector3.Lerp (transform.position, generalInfo.getCueStickPosition(), Time.deltaTime * 2);
 		}
 	}

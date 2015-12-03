@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using LockingPolicy = Thalmic.Myo.LockingPolicy;
+using Pose = Thalmic.Myo.Pose;
+using UnlockType = Thalmic.Myo.UnlockType;
+using VibrationType = Thalmic.Myo.VibrationType;
+
+
 public class BallControl : MonoBehaviour {
 
 
@@ -33,6 +39,11 @@ public class BallControl : MonoBehaviour {
 	ThalmicMyo thalmicMyo;
 
 	GeneralInfo generalInfo;
+
+	private Pose _lastPose = Pose.Unknown;
+	bool getAccelerationTrue = false;
+	float lastAcceleration = 1.0f;
+	float currentAcceleration = 1.0f;
 	
 	// Use this for initialization
 	void Start ()
@@ -67,23 +78,43 @@ public class BallControl : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.C)) {
 				stopMovingCueBallAfterScratch();
 				selectBallTrue = true;
+				setCueStick();
 			}
 		}
 		if (selectBallTrue) {
-			selectBall();
-			
+			selectBall();			
 			
 		}
 		if (Input.GetKeyDown(KeyCode.S)) {
 			selectBallTrue = true;
 		}
+
+		if (positionCueTrue) {
+			selectBall();
+			//setCueStick();
+		}
+		if (thalmicMyo.pose != _lastPose) {
+			_lastPose = thalmicMyo.pose;
+			if (thalmicMyo.pose == Pose.Fist) {
+				getAccelerationTrue = true;
+				
+				//ExtendUnlockAndNotifyUserAction (thalmicMyo);
+			}
+
+		}
 		if (Input.GetKeyDown (KeyCode.Y)) {
 			shoot();
 		}
-		if (positionCueTrue) {
-			selectBall();
-			setCueStick();
-		}		
+		if (getAccelerationTrue) {
+			lastAcceleration = currentAcceleration;
+			currentAcceleration = myoAcceleration();
+			//Debug.Log ("Last acceleration " + lastAcceleration + " currentAccleration " + currentAcceleration);
+			if (currentAcceleration < lastAcceleration && lastAcceleration > 1.10f) {
+				shoot ();
+				getAccelerationTrue = false;
+			}
+
+		}
 
 		//Debug.Log ("Ball Control accel " + myoAcceleration());
 	}
@@ -126,12 +157,19 @@ public class BallControl : MonoBehaviour {
 	}
 	
 	void shoot (){
+		cueStickCollider.enabled = true;
 		generalInfo.setCuePosition(cueStick.transform.position);
 		cueStickRB.constraints = RigidbodyConstraints.None;
-		Vector3 velocity =   (cueBallRB.transform.position - cueStickRB.transform.position) * 2f;
+		Vector3 velocity = (cueBallRB.transform.position - cueStickRB.transform.position) * 2.5f;
 
-		cueStickRB.velocity = velocity*30;
+		cueStickRB.velocity = (velocity*20) * Mathf.Clamp(currentAcceleration, 1.4f, 1.6f);
 		selectBallTrue = false;
+
+		//setCueStick();
+		//cueStickRB.constraints = RigidbodyConstraints.FreezeAll;
+		cueStickRB.position = Vector3.Lerp (cueStickRB.position, generalInfo.getCueStickPosition(), Time.deltaTime * 2);
+		//cueStickCollider.enabled = false;
+
 	}
 	
 	void OnTriggerEnter (Collider col)
@@ -267,7 +305,7 @@ public class BallControl : MonoBehaviour {
 			return acceleration;
 		}
 		else {
-			return 0f;
+			return 1f;
 		}
 	}
 }
