@@ -1,24 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CueStickControl : MonoBehaviour {
+public class CueStickControl : MonoBehaviour {    
 
-    private static CueStickControl instance;
-
-    private CueStickControl() { }
-
-    public static CueStickControl getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new CueStickControl();
-        }
-        return instance;
-    }
+	GeneralInfo generalInfo;
 
     // Use this for initialization
     void Start () {
-	
+		generalInfo = GeneralInfo.getInstance();
 	}
 	
 	// Update is called once per frame
@@ -26,8 +15,11 @@ public class CueStickControl : MonoBehaviour {
 	
 	}
 
-    public void lineUpShot(Ray cueStickRay)
-    {
-        //transform.position = cueStickRay.GetPoint (.5f);
-    }
+	void OnCollisionEnter(Collision collision) {
+		if (collision.gameObject.transform.name == "cueBall") {
+			gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+			Debug.Log ("CueSTick on collision enter: transform.position " + transform.position + " ballcontrol " + generalInfo.getCueStickPosition());
+			transform.position = Vector3.Lerp (transform.position, generalInfo.getCueStickPosition(), Time.deltaTime * 2);
+		}
+	}
 }

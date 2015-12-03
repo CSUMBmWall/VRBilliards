@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 // Draw simple instructions for sample scene.
@@ -9,16 +9,15 @@ public class SampleSceneGUI : MonoBehaviour
 	// This object must have a ThalmicMyo script attached.
 	public GameObject myo = null;
 	bool myoIsPaired = false;
-	Quaternion myoRotationVal;
+	ThalmicHub hub;
 	ThalmicMyo thalmicMyo;
-
 	
 	// Draw some basic instructions.
 	void OnGUI ()
 	{
 		GUI.skin.label.fontSize = 20;
 		
-		ThalmicHub hub = ThalmicHub.instance;
+		hub = ThalmicHub.instance;
 		
 		// Access the ThalmicMyo script attached to the Myo object.
 		thalmicMyo = myo.GetComponent<ThalmicMyo> ();
@@ -38,26 +37,21 @@ public class SampleSceneGUI : MonoBehaviour
 			          );
 		} else {
 			myoIsPaired = true;
-
 			/*
-
 			GUI.Label (new Rect (12, 8, Screen.width, Screen.height),
+
 			           "Fist: Vibrate Myo armband\n" +
 			           "Wave in: Set box material to blue\n" +
 			           "Wave out: Set box material to green\n" +
 			           "Double tap: Reset box material\n" +
 			           "Fingers spread: Set forward direction"
 			           );
-			         */
+			*/
 		}
 	}
 
 	public bool isPaired() {
 		return myoIsPaired;
-	}
-
-	public Quaternion myoRotation() {
-		return myoRotationVal;
 	}
 	
 	void Update ()
@@ -67,8 +61,20 @@ public class SampleSceneGUI : MonoBehaviour
 		if (Input.GetKeyDown ("q")) {
 			hub.ResetHub();
 		}
+	}
+
+	public float myoAcceleration() {
 		if (myoIsPaired) {
-			myoRotationVal = myo.GetComponent<Quaternion>();
+			//myoRotationVal = myo.GetComponent<Quaternion>();
+			Vector3 accel = thalmicMyo.accelerometer;
+			float accelx = Mathf.Pow(accel.x, 2);
+			float accely = Mathf.Pow(accel.y, 2);
+			float accelz = Mathf.Pow(accel.z, 2);
+			float acceleration = Mathf.Sqrt(accelx + accely + accelz);
+			return acceleration;
+		}
+		else {
+			return 0f;
 		}
 	}
 }
